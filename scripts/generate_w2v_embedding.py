@@ -22,7 +22,7 @@ def tokenize_text(text):
 
 def get_vectors(model, tagged_docs):
     sents = tagged_docs.values
-    targets, regressors = zip(*[(doc.tags[0], model.infer_vector(doc.words, epochs=20)) for doc in sents])
+    targets, regressors = zip(*[(doc.tags[0], model.infer_vector(doc.words, epochs=5)) for doc in sents])
     return targets, regressors
 
 
@@ -44,7 +44,7 @@ model_dbow.build_vocab([x for x in tqdm(train_tagged_summary.values)] + [x for x
 
 print("\n> Training bag of words model")
 for epoch in range(30):
-    model_dbow.train(utils.shuffle([x for x in tqdm(train_tagged_summary.values, desc = 'epoch {}'.format(epoch))]), total_examples=len(train_tagged_summary.values), epochs=1)
+    model_dbow.train(utils.shuffle([x for x in tqdm(train_tagged_summary.values, desc = 'epoch {}'.format(epoch))]), total_examples=len(train_tagged_summary.values), epochs=30)
     model_dbow.alpha -= 0.002
     model_dbow.min_alpha = model_dbow.alpha
 
@@ -56,7 +56,7 @@ model_dmm.build_vocab([x for x in tqdm(train_tagged_summary.values)] + [x for x 
 
 print("\n> Training Distributed memory model")
 for epoch in range(30):
-    model_dmm.train(utils.shuffle([x for x in tqdm(train_tagged_summary.values, desc = 'epoch {}'.format(epoch))]), total_examples=len(train_tagged_summary.values), epochs=1)
+    model_dmm.train(utils.shuffle([x for x in tqdm(train_tagged_summary.values, desc = 'epoch {}'.format(epoch))]), total_examples=len(train_tagged_summary.values), epochs=30)
     model_dmm.alpha -= 0.002
     model_dmm.min_alpha = model_dmm.alpha
 
@@ -84,5 +84,5 @@ testing_result = pd.DataFrame()
 testing_result.insert(0, "summary_embedding", X_test)
 testing_result.insert(0, "document_embedding", X_test_document)
 
-training_result.to_json("../processed_data/d2v_training.json")
-testing_result.to_json("../processed_data/d2v_testing.json")
+training_result.to_json("../processed_data/d2v_training_5.json")
+testing_result.to_json("../processed_data/d2v_testing_5.json")
