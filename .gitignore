@@ -133,6 +133,7 @@ dmypy.json
 *.json
 *.csv
 .DS_Store
+libomp.rb
 
 # IDE
 .idea/

@@ -22,7 +22,7 @@ def tokenize_text(text):
 
 def get_vectors(model, tagged_docs):
     sents = tagged_docs.values
-    targets, regressors = zip(*[(doc.tags[0], model.infer_vector(doc.words, epochs=5)) for doc in sents])
+    targets, regressors = zip(*[(doc.tags[0], model.infer_vector(doc.words, epochs=20)) for doc in sents])
     return targets, regressors
 
 
@@ -84,5 +84,5 @@ testing_result = pd.DataFrame()
 testing_result.insert(0, "summary_embedding", X_test)
 testing_result.insert(0, "document_embedding", X_test_document)
 
-training_result.to_json("../processed_data/d2v_training_5.json")
-testing_result.to_json("../processed_data/d2v_testing_5.json")
+training_result.to_json("../processed_data/d2v_training_20.json")
+testing_result.to_json("../processed_data/d2v_testing_20.json")

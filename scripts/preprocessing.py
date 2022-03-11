@@ -107,7 +107,9 @@ def clean(text, stem_words=True):
     # replace the float numbers with a random number, it will be parsed as number afterward, and also been replaced with word "number"
     
     text = re.sub('[0-9]+\.[0-9]+', " 87 ", text)
-  
+    words = text.split()
+    stemmer = SnowballStemmer('english')
+    stemmed_words = [stemmer.stem(word) for word in words]
        # Return a list of words
     return text
 
