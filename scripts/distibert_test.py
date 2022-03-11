@@ -1,4 +1,4 @@
-from transformers import BertTokenizer, BertForSequenceClassification, TrainingArguments, Trainer
+from transformers import BertTokenizer, BertForSequenceClassification, TrainingArguments, Trainer, DistilBertTokenizer, AutoModelForSequenceClassification, AutoTokenizer
 import torch
 import pandas as pd
 import numpy as np
@@ -14,8 +14,8 @@ dataset = pd.read_json('../raw_data/train_set.json')
 
 dataset = dataset[['summary', 'label']]
 
-tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
-model = BertForSequenceClassification.from_pretrained("bert-base-cased")
+tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased", use_fast = True)
+model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels = 2)
 
 
 # ----- 1. Preprocess data -----#
