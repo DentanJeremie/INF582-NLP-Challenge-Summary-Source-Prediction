@@ -6,4 +6,4 @@ def register_api(name):
             cls, name))
         AVAILABLE_MODELS[name] = cls
         return cls
-    return decorator
+    return decorator 

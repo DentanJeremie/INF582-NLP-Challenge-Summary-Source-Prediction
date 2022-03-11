@@ -4,3 +4,4 @@ torch
 nltk
 gensim
 xgboost
+transformers
