@@ -138,3 +138,6 @@ libomp.rb
 # IDE
 .idea/
 .vscode/
+*.pt
+*.bin
+*.pth
