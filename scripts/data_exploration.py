@@ -9,6 +9,16 @@ training_set = pd.read_json('../raw_data/train_set.json')
 test_set = pd.read_json('../raw_data/test_set.json')
 document_set = pd.read_json('../raw_data/documents.json')
 
+
+summs = training_set['summary'].to_numpy()
+
+with open('recap.txt', "w") as f:
+    for a in summs:
+        f.write(a)
+        f.write("\n\n\n")
+    f.close
+
+quit()
 labels_train = training_set['label'].to_numpy()
 labels_test = training_set["label"].to_numpy()
 
