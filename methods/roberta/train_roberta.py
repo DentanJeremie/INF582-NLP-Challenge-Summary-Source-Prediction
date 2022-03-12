@@ -11,7 +11,7 @@ import csv
 torch.cuda.empty_cache()
 
 
-dataset = pd.read_json('../raw_data/train_set.json')
+dataset = pd.read_json('../../raw_data/train_set.json')
 
 dataset = dataset[['summary', 'label']]
 
@@ -46,7 +46,6 @@ X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.01)
 X_train_tokenized = tokenizer(X_train, padding=True, truncation=True, max_length=512)
 X_val_tokenized = tokenizer(X_val, padding=True, truncation=True, max_length=512)
 
-
 train_dataset = Dataset(X_train_tokenized, y_train)
 val_dataset = Dataset(X_val_tokenized, y_val)
 
@@ -65,7 +64,7 @@ def compute_metrics(p):
 
 # Define Trainer
 args = TrainingArguments(
-    output_dir="output_bart",
+    output_dir="output",
     overwrite_output_dir = True,
     evaluation_strategy="steps",
     eval_steps=500,
@@ -74,7 +73,7 @@ args = TrainingArguments(
     num_train_epochs=5,
     seed=0,
     load_best_model_at_end=True,
-    save_steps= 1000
+    save_steps= 500
 )
 
 
@@ -84,7 +83,7 @@ trainer = Trainer(
     train_dataset=train_dataset,
     eval_dataset=val_dataset,
     compute_metrics=compute_metrics,
-    callbacks=[EarlyStoppingCallback(early_stopping_patience=3)]
+    callbacks=[EarlyStoppingCallback(early_stopping_patience=5)]
     )
 
 # Train pre-trained model
@@ -93,16 +92,14 @@ trainer.train()
 
 # ----- 3. Predict -----#
 # Load test data
-test_data = pd.read_json("../raw_data/test_set.json")
+test_data = pd.read_json("../../raw_data/test_set.json")
 X_test = list(test_data["summary"])
 X_test_tokenized = tokenizer(X_test, padding=True, truncation=True, max_length=512)
 
 # Create torch dataset
 test_dataset = Dataset(X_test_tokenized)
 
-# Load trained model
-model_path = "output_bart/checkpoint-2250"
-#model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=2)
+
 
 # Define test trainer
 test_trainer = Trainer(model)
