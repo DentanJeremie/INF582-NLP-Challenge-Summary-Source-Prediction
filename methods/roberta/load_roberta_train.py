@@ -30,7 +30,7 @@ class Dataset(torch.utils.data.Dataset):
     
 # ----- 3. Predict -----#
 # Load train data
-train_data = pd.read_json("../../raw_data/train_set.json")
+train_data = pd.read_json("raw_data/train_set.json")
 
 X_train = list(train_data["summary"])
 
@@ -43,7 +43,7 @@ Y_train = list(train_data['label'])
 train_dataset = Dataset(X_train_tokenized)
 
 # Load trained model
-model_path = "output/checkpoint-2500"
+model_path = "methods/roberta/output/checkpoint-2500"
 model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=2)
 
 # Define train trainer
@@ -66,7 +66,7 @@ def compute_metrics(y_pred, true_labels):
 
 print(compute_metrics(y_pred, Y_train))
 
-with open("analysis/false_positive.txt", "w") as file:
+with open("methods/roberta/analysis/false_positive.txt", "w") as file:
     for i,a in enumerate(X_train):
         if y_pred[i]==1 and Y_train[i] == 0:
             file.write("\n######################################################################################################################\n")
@@ -78,7 +78,7 @@ with open("analysis/false_positive.txt", "w") as file:
             file.write("\n\n\n")
     file.close()
     
-with open("analysis/false_negative.txt", "w") as file:
+with open("methods/roberta/analysis/false_negative.txt", "w") as file:
     for i,a in enumerate(X_train):
         if y_pred[i]==0 and Y_train[i] == 1:
             file.write("\n######################################################################################################################\n")

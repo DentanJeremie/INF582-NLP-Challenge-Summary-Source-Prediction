@@ -1,4 +1,5 @@
 import re
+import numpy as np
 from string import punctuation
 from nltk.stem import SnowballStemmer
 from nltk.corpus import stopwords
@@ -27,7 +28,9 @@ def clean(text, stem_words=True):
         return ''
 
     # Clean the text
-    text = re.sub("\'s", " ", text) # we have cases like "Sam is" or "Sam's" (i.e. his) these two cases aren't separable, I choose to compromise are kill "'s" directly
+    text = re.sub("\u2019", "'", text)
+    text = re.sub("\u2018", "'", text)
+    text = re.sub("\u00a0", " ", text)
     text = re.sub(" whats ", " what is ", text, flags=re.IGNORECASE)
     text = re.sub("\'ve", " have ", text)
     text = re.sub("can't", "can not", text)
@@ -46,31 +49,20 @@ def clean(text, stem_words=True):
     text = re.sub("[c-fC-F]\:\/", " disk ", text)
     
     # remove comma between numbers, i.e. 15,000 -> 15000
-    
     text = re.sub('(?<=[0-9])\,(?=[0-9])', "", text)
+    # replace the float numbers with a random number, it will be parsed as number afterward, and also been replaced with word "number"
+    text = re.sub('[0-9]+\.[0-9]+', pad_str(str(np.random.randint(100))), text)
     
-#     # all numbers should separate from words, this is too aggressive
-    
-#     def pad_number(pattern):
-#         matched_string = pattern.group(0)
-#         return pad_str(matched_string)
-#     text = re.sub('[0-9]+', pad_number, text)
-    
-    # add padding to punctuations and special chars, we still need them later
-    
-    text = re.sub('\$', " dollar ", text)
-    text = re.sub('\%', " percent ", text)
-    text = re.sub('\&', " and ", text)
-    
-#    def pad_pattern(pattern):
-#        matched_string = pattern.group(0)
-#       return pad_str(matched_string)
-#    text = re.sub('[\!\?\@\^\+\*\/\,\~\|\`\=\:\;\.\#\\\]', pad_pattern, text) 
+    # adding padding to numbers (separate them from text) and special characters
+    def pad_pattern(pattern):
+        matched_string = pattern.group(0)
+        return pad_str(matched_string)
+    text = re.sub('[0-9]+', pad_pattern, text)
+    text = re.sub('[\!\$\%\&\?\@\^\+\*\/\,\~\|\`\=\:\;\.\#\\\]', pad_pattern, text)
         
     text = re.sub('[^\x00-\x7F]+', pad_str(SPECIAL_TOKENS['non-ascii']), text) # replace non-ascii word with special word
     
     # indian dollar
-    
     text = re.sub("(?<=[0-9])rs ", " rs ", text, flags=re.IGNORECASE)
     text = re.sub(" rs(?=[0-9])", " rs ", text, flags=re.IGNORECASE)
     
@@ -104,37 +96,33 @@ def clean(text, stem_words=True):
     text = re.sub(r" J K ", " JK ", text, flags=re.IGNORECASE)
     text = re.sub(r" J\.K\. ", " JK ", text, flags=re.IGNORECASE)
     
-    # replace the float numbers with a random number, it will be parsed as number afterward, and also been replaced with word "number"
-    
-    text = re.sub('[0-9]+\.[0-9]+', " 87 ", text)
     words = text.split()
-    stemmer = SnowballStemmer('english')
-    stemmed_words = [stemmer.stem(word) for word in words]
+    # stemmer = SnowballStemmer('english')
+    # stemmed_words = [stemmer.stem(word) for word in words]
        # Return a list of words
     return text
 
 
 
 
-training_set = pd.read_json('../raw_data/train_set.json')
-test_set = pd.read_json('../raw_data/test_set.json')
+# Loading
+training_set = pd.read_json('raw_data/train_set.json')
+test_set = pd.read_json('raw_data/test_set.json')
 
-
-a = 0 
-for i in range(a,a+10):
-    print(training_set.document[i])
-    print(training_set.summary[i])
-    print()
     
     
-tqdm.pandas(desc = 'Preprocessing rows')
+tqdm.pandas(desc = 'Preprocessing doc train')
 training_set['document'] = training_set['document'].progress_apply(clean)
+tqdm.pandas(desc = 'Preprocessing sum train')
 training_set['summary'] = training_set['summary'].progress_apply(clean)
-
+tqdm.pandas(desc = 'Preprocessing doc test ')
 test_set['document'] = test_set['document'].progress_apply(clean)
+tqdm.pandas(desc = 'Preprocessing sum test ')
 test_set['summary'] = test_set['summary'].progress_apply(clean)
 
-training_set.to_json('../processed_data/train_set.json')
-test_set.to_json('../processed_data/test_set.json')
+
+# Saving
+training_set.to_json('processed_data/train_set.json')
+test_set.to_json('processed_data/test_set.json')
 
 

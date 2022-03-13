@@ -28,7 +28,7 @@ class Dataset(torch.utils.data.Dataset):
     
 # ----- 3. Predict -----#
 # Load test data
-test_data = pd.read_json("../../raw_data/test_set.json")
+test_data = pd.read_json("raw_data/test_set.json")
 X_test = list(test_data["summary"])
 X_test_tokenized = tokenizer(X_test, padding=True, truncation=True, max_length=512)
 
@@ -36,7 +36,7 @@ X_test_tokenized = tokenizer(X_test, padding=True, truncation=True, max_length=5
 test_dataset = Dataset(X_test_tokenized)
 
 # Load trained model
-model_path = "output/checkpoint-2000"
+model_path = "methods/roberta/output/checkpoint-2000"
 model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=2)
 
 # Define test trainer
@@ -48,7 +48,7 @@ raw_pred, _, _ = test_trainer.predict(test_dataset)
 # Preprocess raw predictions
 y_pred = np.argmax(raw_pred, axis=1)
 
-with open("distibert/submission.csv", "w") as pred:
+with open("methods/roberta/distibert/submission.csv", "w") as pred:
     csv_out = csv.writer(pred)
     csv_out.writerow(['id','label'])
     for i, row in enumerate(y_pred):
