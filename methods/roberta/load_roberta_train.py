@@ -3,6 +3,8 @@ import torch
 import pandas as pd
 import numpy as np
 import csv
+from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+
 
 torch.cuda.empty_cache()
 
@@ -27,29 +29,63 @@ class Dataset(torch.utils.data.Dataset):
     
     
 # ----- 3. Predict -----#
-# Load test data
-test_data = pd.read_json("../../raw_data/train_set.json")
-X_test = list(test_data["summary"])
-X_test_tokenized = tokenizer(X_test, padding=True, truncation=True, max_length=512)
+# Load train data
+train_data = pd.read_json("../../raw_data/train_set.json")
 
+X_train = list(train_data["summary"])
+
+docs = list(train_data["document"])
+
+X_train_tokenized = tokenizer(X_train, padding=True, truncation=True, max_length=512)
+
+Y_train = list(train_data['label'])
 # Create torch dataset
-test_dataset = Dataset(X_test_tokenized)
+train_dataset = Dataset(X_train_tokenized)
 
 # Load trained model
-model_path = "output/checkpoint-2000"
+model_path = "output/checkpoint-2500"
 model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=2)
 
-# Define test trainer
-test_trainer = Trainer(model)
+# Define train trainer
+train_trainer = Trainer(model)
 
 # Make prediction
-raw_pred, _, _ = test_trainer.predict(test_dataset)
+raw_pred, _, _ = train_trainer.predict(train_dataset)
 
 # Preprocess raw predictions
 y_pred = np.argmax(raw_pred, axis=1)
 
-with open("distibert/submission.csv", "w") as pred:
-    csv_out = csv.writer(pred)
-    csv_out.writerow(['id','label'])
-    for i, row in enumerate(y_pred):
-        csv_out.writerow([i, row])
+def compute_metrics(y_pred, true_labels):
+
+    accuracy = accuracy_score(y_true = true_labels, y_pred = y_pred)
+    recall = recall_score(y_true = true_labels, y_pred = y_pred)
+    precision = precision_score(y_true = true_labels, y_pred = y_pred)
+    f1 = f1_score(y_true = true_labels, y_pred = y_pred)
+
+    return {"accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1}
+
+print(compute_metrics(y_pred, Y_train))
+
+with open("analysis/false_positive.txt", "w") as file:
+    for i,a in enumerate(X_train):
+        if y_pred[i]==1 and Y_train[i] == 0:
+            file.write("\n######################################################################################################################\n")
+            file.write(str(raw_pred[i]))
+            file.write("\n-----------------------------------------------\n")
+            file.write(a)
+            file.write("\n-----------------------------------------------\n")
+            file.write(docs[i])
+            file.write("\n\n\n")
+    file.close()
+    
+with open("analysis/false_negative.txt", "w") as file:
+    for i,a in enumerate(X_train):
+        if y_pred[i]==0 and Y_train[i] == 1:
+            file.write("\n######################################################################################################################\n")
+            file.write(str(raw_pred[i]))
+            file.write("\n-----------------------------------------------\n")
+            file.write(a)
+            file.write("\n-----------------------------------------------\n")
+            file.write(docs[i])
+            file.write("\n\n\n")
+    file.close()

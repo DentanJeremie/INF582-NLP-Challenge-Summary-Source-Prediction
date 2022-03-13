@@ -67,13 +67,14 @@ args = TrainingArguments(
     output_dir="output",
     overwrite_output_dir = True,
     evaluation_strategy="steps",
-    eval_steps=500,
+    eval_steps=250,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=8,
     num_train_epochs=5,
     seed=0,
     load_best_model_at_end=True,
-    save_steps= 500
+    save_steps= 500, 
+    gradient_accumulation_steps=1
 )
 
 
@@ -98,8 +99,6 @@ X_test_tokenized = tokenizer(X_test, padding=True, truncation=True, max_length=5
 
 # Create torch dataset
 test_dataset = Dataset(X_test_tokenized)
-
-
 
 # Define test trainer
 test_trainer = Trainer(model)
