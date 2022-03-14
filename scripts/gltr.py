@@ -4,7 +4,7 @@ import time
 
 from transformers import (GPT2LMHeadModel, GPT2Tokenizer,
                           BertTokenizer, BertForMaskedLM)
-from .class_register import register_api
+from class_register import register_api
 
 
 class AbstractLanguageChecker:
