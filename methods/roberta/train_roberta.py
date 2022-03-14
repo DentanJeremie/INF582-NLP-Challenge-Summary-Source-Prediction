@@ -11,7 +11,7 @@ import csv
 torch.cuda.empty_cache()
 
 
-dataset = pd.read_json('../../raw_data/train_set.json')
+dataset = pd.read_json('processed_data/train_set.json')
 
 dataset = dataset[['summary', 'label']]
 
@@ -67,13 +67,14 @@ args = TrainingArguments(
     output_dir="output",
     overwrite_output_dir = True,
     evaluation_strategy="steps",
-    eval_steps=500,
+    eval_steps=250,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=8,
     num_train_epochs=5,
     seed=0,
     load_best_model_at_end=True,
-    save_steps= 500
+    save_steps= 500, 
+    gradient_accumulation_steps=1
 )
 
 
@@ -92,14 +93,12 @@ trainer.train()
 
 # ----- 3. Predict -----#
 # Load test data
-test_data = pd.read_json("../../raw_data/test_set.json")
+test_data = pd.read_json("raw_data/test_set.json")
 X_test = list(test_data["summary"])
 X_test_tokenized = tokenizer(X_test, padding=True, truncation=True, max_length=512)
 
 # Create torch dataset
 test_dataset = Dataset(X_test_tokenized)
-
-
 
 # Define test trainer
 test_trainer = Trainer(model)
@@ -110,7 +109,7 @@ raw_pred, _, _ = test_trainer.predict(test_dataset)
 # Preprocess raw predictions
 y_pred = np.argmax(raw_pred, axis=1)
 
-with open("distibert/submission.csv", "w") as pred:
+with open("methods/roberta/distibert/submission.csv", "w") as pred:
     csv_out = csv.writer(pred)
     csv_out.writerow(['id','label'])
     for i, row in enumerate(y_pred):
