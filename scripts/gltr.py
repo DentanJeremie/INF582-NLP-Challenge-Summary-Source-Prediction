@@ -76,7 +76,7 @@ class LM(AbstractLanguageChecker):
 
     def check_probabilities(self, in_text, topk=40):
         # Process input
-        token_ids = self.enc(in_text, return_tensors='pt').data['input_ids'][0]
+        token_ids = self.enc(in_text[:1024], return_tensors='pt').data['input_ids'][0]
         token_ids = torch.concat([self.start_token, token_ids])
         # Forward through the model
         output = self.model(token_ids.to(self.device))

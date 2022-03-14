@@ -6,3 +6,4 @@ gensim
 xgboost
 transformers
 sklearn
+sentence_transformers
