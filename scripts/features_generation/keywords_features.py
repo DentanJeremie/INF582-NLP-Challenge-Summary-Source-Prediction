@@ -1,4 +1,4 @@
-# See for more details : https://towardsdatascience.com/keyword-extraction-with-bert-724efca412ea
+# Inspirations from : https://towardsdatascience.com/keyword-extraction-with-bert-724efca412ea
 
 import pandas as pd
 import numpy as np
