@@ -34,20 +34,41 @@ rouge_test = pd.read_csv("processed_data/rouge_test.csv")
 # Combining
 X = pd.concat([roberta_train, gltr_train, keywords_train, embedding_train, ngrams_train, rouge_train], axis = 1)
 Y = training_set.label
+#X_train, X_val , Y_train, Y_val = train_test_split(X, Y, test_size=0.02, random_state=0)
+
+with open('processed_data/xgboost_tuned_params.txt', 'r') as file:
+    params = eval(file.read())
 
 
-xgbc = XGBClassifier(objective='binary:logistic', colsample_bytree= 0.7, learning_rate= 0.1, max_depth= 3, n_estimators= 1000, use_label_encoder=False, eval_metric='error')
-clf = xgbc.fit(X, Y)
+# Classifier
+dtrain = xgboost.DMatrix(X, label = Y)
 
-'''y_pred_val = xgbc.predict(X_val)
+best_model = xgboost.train(
+    params,
+    dtrain,
+    num_boost_round=45
+)
+
+'''
+xgbc = XGBClassifier(objective='binary:logistic', colsample_bytree= 0.7, learning_rate= 0.1, max_depth= 2, n_estimators= 100, use_label_encoder=False, eval_metric='error')
+clf = xgbc.fit(X_train, Y_train)
+'''
+'''
+y_pred_val = xgbc.predict(X_val)
 y_pred_val = y_pred_val.round(0).astype(int)
+'''
 
+'''
 print("Accuracy :", accuracy_score(Y_val, y_pred_val))
-print("Accuracy without features", accuracy_score(Y_val, np.round(X_val[["roberta"]].to_numpy(),0)))'''
+print("Accuracy without features", accuracy_score(Y_val, np.round(X_val[["roberta"]].to_numpy(),0)))
+'''
 # Write predictions to a file
 X_test = pd.concat([roberta_test, gltr_test, keywords_test, embedding_test, ngrams_test, rouge_test], axis = 1)
 
-predictions = xgbc.predict(X_test)
+#predictions = xgbc.predict(X_test)
+dtest = xgboost.DMatrix(X_test)
+predictions = best_model.predict(dtest)
+predictions = predictions.round(0).astype(int)
 
 with open("output/output/submission.csv", "w") as pred:
     csv_out = csv.writer(pred)
