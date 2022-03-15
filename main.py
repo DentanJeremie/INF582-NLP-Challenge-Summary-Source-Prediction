@@ -45,10 +45,11 @@ clf = xgbc.fit(X, Y)
 plot_importance(xgbc)
 plt.savefig('featur_imp.png')
 
-print(xgbc.feature_importances_)
 # plot
+#print(xgbc.feature_importances_)
 plt.bar(range(len(xgbc.feature_importances_)), xgbc.feature_importances_)
 plt.savefig('barplot.png')
+print('xgboost feature impotance saved to barplot.png')
 
 '''y_pred_val = xgbc.predict(X_val)
 y_pred_val = y_pred_val.round(0).astype(int)
@@ -65,3 +66,4 @@ with open("output/output/submission.csv", "w") as pred:
     csv_out.writerow(['id','label'])
     for i, row in enumerate(predictions):
         csv_out.writerow([i, row])
+    print("'Submission saved to output/output/submission.csv !")
