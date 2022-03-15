@@ -9,7 +9,12 @@ import csv
 import numpy as np
 from tqdm import tqdm
 from gltr import LM, BERTLM
+import sys
 
+if len(sys.argv) != 2:
+    print("Wrong number of arguments! Usage: python", sys.argv[0], "<finetuned-model>")
+    exit()
+finetuned_model = bool(int(sys.argv[1]))
 
 # Read The data
 training_set = pd.read_json('processed_data/train_set.json')
@@ -21,7 +26,10 @@ columns_train = np.zeros((len(training_set),len(column_names)))
 columns_test = np.zeros((len(test_set),len(column_names)))
 
 # Adding features from GLTK
-lm = LM()
+if not finetuned_model:
+    lm = LM()
+else:
+    lm = LM("finetunedgpt")
 
 for i in tqdm(range(len(training_set.index))):
     gltr_results = lm.check_probabilities(training_set.loc[i]["summary"], topk=10)

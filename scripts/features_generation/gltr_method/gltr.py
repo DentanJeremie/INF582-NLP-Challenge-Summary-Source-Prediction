@@ -67,7 +67,7 @@ def top_k_logits(logits, k):
 class LM(AbstractLanguageChecker):
     def __init__(self, model_name_or_path="gpt2"):
         super(LM, self).__init__()
-        self.enc = GPT2Tokenizer.from_pretrained(model_name_or_path)
+        self.enc = GPT2Tokenizer.from_pretrained("gpt2")
         self.model = GPT2LMHeadModel.from_pretrained(model_name_or_path)
         self.model.to(self.device)
         self.model.eval()
