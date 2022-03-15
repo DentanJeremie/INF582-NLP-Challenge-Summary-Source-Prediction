@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import csv
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+from scipy.special import softmax
 
 
 torch.cuda.empty_cache()
@@ -29,6 +30,7 @@ class Dataset(torch.utils.data.Dataset):
     
     
 # ----- 3. Predict -----#
+# ----- A. On train set -----#
 # Load train data
 train_data = pd.read_json("raw_data/train_set.json")
 
@@ -43,28 +45,51 @@ Y_train = list(train_data['label'])
 train_dataset = Dataset(X_train_tokenized)
 
 # Load trained model
-model_path = "methods/roberta/output/checkpoint-2500"
+model_path = "methods/roberta/output/checkpoint-4000"
 model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=2)
 
 # Define train trainer
 train_trainer = Trainer(model)
 
-# Make prediction
+# Make prediction on train set
 raw_pred, _, _ = train_trainer.predict(train_dataset)
 
 # Preprocess raw predictions
-y_pred = np.argmax(raw_pred, axis=1)
+y_pred = softmax(raw_pred, axis=1)
 
-def compute_metrics(y_pred, true_labels):
+with open("processed_data/roberta_train.csv", "w") as pred:
+    csv_out = csv.writer(pred)
+    csv_out.writerow(['id','label'])
+    for i, row in enumerate(y_pred):
+        csv_out.writerow([i, row[1]])
 
-    accuracy = accuracy_score(y_true = true_labels, y_pred = y_pred)
-    recall = recall_score(y_true = true_labels, y_pred = y_pred)
-    precision = precision_score(y_true = true_labels, y_pred = y_pred)
-    f1 = f1_score(y_true = true_labels, y_pred = y_pred)
+# ----- A. On test set -----#
+# Load test data
+test_data = pd.read_json("processed_data/test_set.json")
+X_test = list(test_data["summary"])
+X_test_tokenized = tokenizer(X_test, padding=True, truncation=True, max_length=512)
 
-    return {"accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1}
+# Create torch dataset
+test_dataset = Dataset(X_test_tokenized)
 
-print(compute_metrics(y_pred, Y_train))
+# Load trained model
+model_path = "methods/roberta/output/checkpoint-4000"
+model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=2)
+
+# Define test trainer
+test_trainer = Trainer(model)
+
+# Make prediction
+raw_pred, _, _ = test_trainer.predict(test_dataset)
+
+# Preprocess probability predictions
+y_pred = softmax(raw_pred, axis=1)
+
+with open("processed_data/roberta_test.csv", "w") as pred:
+    csv_out = csv.writer(pred)
+    csv_out.writerow(['id','label'])
+    for i, row in enumerate(y_pred):
+        csv_out.writerow([i, row[1]])
 
 with open("methods/roberta/analysis/false_positive.txt", "w") as file:
     for i,a in enumerate(X_train):
