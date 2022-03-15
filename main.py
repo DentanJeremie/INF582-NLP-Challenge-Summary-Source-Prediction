@@ -1,3 +1,4 @@
+from xgboost import plot_importance
 import pandas as pd
 import numpy as np
 import csv
@@ -5,6 +6,7 @@ from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 import xgboost
+import matplotlib.pyplot as plt
 
 
 # Read The data
@@ -38,6 +40,15 @@ Y = training_set.label
 
 xgbc = XGBClassifier(objective='binary:logistic', colsample_bytree= 0.7, learning_rate= 0.1, max_depth= 3, n_estimators= 1000, use_label_encoder=False, eval_metric='error')
 clf = xgbc.fit(X, Y)
+
+
+plot_importance(xgbc)
+plt.savefig('featur_imp.png')
+
+print(xgbc.feature_importances_)
+# plot
+plt.bar(range(len(xgbc.feature_importances_)), xgbc.feature_importances_)
+plt.savefig('barplot.png')
 
 '''y_pred_val = xgbc.predict(X_val)
 y_pred_val = y_pred_val.round(0).astype(int)

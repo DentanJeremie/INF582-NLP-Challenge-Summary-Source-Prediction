@@ -7,6 +7,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 from transformers import EarlyStoppingCallback
 import csv
+from scipy.special import softmax
+
 
 torch.cuda.empty_cache()
 
@@ -90,26 +92,41 @@ trainer = Trainer(
 trainer.train()
 
 
-# ----- 3. Predict -----#
+# ----- 3. Predict Features -----#
 # Load test data
-test_data = pd.read_json("raw_data/test_set.json")
+train_data = pd.read_json("processed/train_set.json")
+X_train = list(train_data["summary"])
+X_train_tokenized = tokenizer(X_train, padding=True, truncation=True, max_length=512)
+
+train_dataset = Dataset(X_train_tokenized)
+
+raw_pred, _, _ = trainer.predict(train_dataset)
+
+# Preprocess raw predictions
+y_pred = softmax(raw_pred, axis=1)
+
+with open("processed_data/roberta_train.csv", "w") as pred:
+    csv_out = csv.writer(pred)
+    csv_out.writerow(['id','label'])
+    for i, row in enumerate(y_pred):
+        csv_out.writerow([i, row[1]])
+
+# Load test data
+test_data = pd.read_json("processed_data/test_set.json")
 X_test = list(test_data["summary"])
 X_test_tokenized = tokenizer(X_test, padding=True, truncation=True, max_length=512)
 
 # Create torch dataset
 test_dataset = Dataset(X_test_tokenized)
 
-# Define test trainer
-test_trainer = Trainer(model)
+# Make predictions
+raw_pred, _, _ = trainer.predict(test_dataset)
 
-# Make prediction
-raw_pred, _, _ = test_trainer.predict(test_dataset)
+# Preprocess probability predictions
+y_pred = softmax(raw_pred, axis=1)
 
-# Preprocess raw predictions
-y_pred = np.argmax(raw_pred, axis=1)
-
-with open("methods/roberta/distibert/submission.csv", "w") as pred:
+with open("processed_data/roberta_test.csv", "w") as pred:
     csv_out = csv.writer(pred)
     csv_out.writerow(['id','label'])
     for i, row in enumerate(y_pred):
-        csv_out.writerow([i, row])
+        csv_out.writerow([i, row[1]])
