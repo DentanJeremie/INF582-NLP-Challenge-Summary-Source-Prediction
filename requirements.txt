@@ -8,3 +8,4 @@ transformers
 sklearn
 sentence_transformers
 rouge
+matplotlib
