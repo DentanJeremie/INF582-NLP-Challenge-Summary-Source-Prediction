@@ -24,8 +24,11 @@ keywords_test = pd.read_csv("processed_data/keywords_test.csv")
 embedding_train = pd.read_csv("processed_data/embedding_train.csv")
 embedding_test = pd.read_csv("processed_data/embedding_test.csv")
 
+ngrams_train = pd.read_csv("processed_data/ngrams_train.csv")
+ngrams_test = pd.read_csv("processed_data/ngrams_test.csv")
+
 # Combining
-X = pd.concat([roberta_train, gltr_train, keywords_train, embedding_train], axis = 1)
+X = pd.concat([roberta_train, gltr_train, keywords_train, embedding_train, ngrams_train], axis = 1)
 Y = training_set.label
 X_train, X_val , Y_train, Y_val = train_test_split(X, Y, test_size=0.02, random_state=0)
 
@@ -40,7 +43,7 @@ print("Accuracy without features", accuracy_score(Y_val, np.round(X_val[["robert
 
 
 # Write predictions to a file
-X_test = pd.concat([roberta_test, gltr_test, keywords_test, embedding_test], axis = 1)
+X_test = pd.concat([roberta_test, gltr_test, keywords_test, embedding_test, ngrams_test], axis = 1)
 predictions = xgbc.predict(X_test)
 with open("methods/roberta_featured/output/submission.csv", "w") as pred:
     csv_out = csv.writer(pred)
