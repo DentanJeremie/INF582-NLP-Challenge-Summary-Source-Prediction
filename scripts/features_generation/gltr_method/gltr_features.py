@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 import csv
 import numpy as np
 from tqdm import tqdm
-from .gltr import LM, BERTLM
+from gltr import LM, BERTLM
 
 
 # Read The data
