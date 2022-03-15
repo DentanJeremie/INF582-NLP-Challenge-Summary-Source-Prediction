@@ -15,8 +15,7 @@ dataset = pd.read_json('processed_data/train_set.json')
 
 dataset = dataset[['summary', 'label']]
 
-model_type = 'distilroberta-base'
-#model_type ='distilbert-base-cased'
+model_type = 'roberta-base'
 
 tokenizer = AutoTokenizer.from_pretrained(model_type, use_fast = True)
 
