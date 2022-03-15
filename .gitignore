@@ -131,7 +131,7 @@ dmypy.json
 
 # Exclude the data
 *.json
-*.csv
+# *.csv
 .DS_Store
 libomp.rb
 

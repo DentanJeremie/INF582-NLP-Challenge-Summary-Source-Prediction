@@ -1,49 +1,54 @@
 import pandas as pd
-import sklearn
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split
+import numpy as np
 import csv
-
-import lightgbm as lgb
+from xgboost import XGBClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 
 
 # Read The data
-training_set = pd.read_json('../raw_data/train_set.json')
-test_set = pd.read_json('../raw_data/test_set.json')
+training_set = pd.read_json('processed_data/train_set.json')
+test_set = pd.read_json('processed_data/test_set.json')
 
+roberta_train = pd.read_csv("processed_data/roberta_train.csv")[["label"]]
+roberta_test = pd.read_csv("processed_data/roberta_test.csv")[["label"]]
+roberta_train.rename(columns={"label": "roberta"},inplace=True)
+roberta_test.rename(columns={"label": "roberta"},inplace=True)
 
-params = {}
-params['learning_rate']=0.05
-params['boosting_type']='gbdt' 
-params['objective']='binary'
-params['metric']='binary_logloss'
-params['max_depth']= 20
+gltr_train = pd.read_csv("processed_data/gltr_train.csv")
+gltr_test = pd.read_csv("processed_data/gltr_test.csv")
 
-X = pd.read_csv("NAME OF THE CSV")  # to preprocess the feature extraction
+keywords_train = pd.read_csv("processed_data/keywords_train.csv")
+keywords_test = pd.read_csv("processed_data/keywords_test.csv")
 
+embedding_train = pd.read_csv("processed_data/embedding_train.csv")
+embedding_test = pd.read_csv("processed_data/embedding_test.csv")
+
+ngrams_train = pd.read_csv("processed_data/ngrams_train.csv")
+ngrams_test = pd.read_csv("processed_data/ngrams_test.csv")
+
+rouge_train = pd.read_csv("processed_data/rouge_train.csv")
+rouge_test = pd.read_csv("processed_data/rouge_test.csv")
+
+# Combining
+X = pd.concat([roberta_train, gltr_train, keywords_train, embedding_train, ngrams_train, rouge_train], axis = 1)
 Y = training_set.label
+X_train, X_val , Y_train, Y_val = train_test_split(X, Y, test_size=0.02, random_state=0)
 
-X_train, X_test , Y_train, Y_test = train_test_split(X, Y, test_size=0.01, random_state=0)
+# Classifier
+xgbc = XGBClassifier(objective='binary:logistic', colsample_bytree= 0.7, learning_rate= 0.1, max_depth= 2, n_estimators= 100, use_label_encoder=False, eval_metric='error')
+clf = xgbc.fit(X_train, Y_train)
+y_pred_val = xgbc.predict(X_val)
+y_pred_val = y_pred_val.round(0).astype(int)
 
-train_data = lgb.Dataset(X_train, label = Y_train)
+print("Accuracy :", accuracy_score(Y_val, y_pred_val))
+print("Accuracy without features", accuracy_score(Y_val, np.round(X_val[["roberta"]].to_numpy(),0)))
 
-clf = lgb.train(params, train_data, 100, verbose_eval= 100)
-
-y_pred = clf.predict(X_test)
-y_pred = y_pred.round(0)
-y_pred = y_pred.astype(int)
-
-print(roc_auc_score(y_pred, Y_test))
-
-X_test = vectorizer.transform(test_set['summary'])
-predictions = clf.predict(X_test)
-predictions = predictions.round(0)
-predictions = predictions.astype(int)
 
 # Write predictions to a file
-with open("submission.csv", "w") as pred:
+X_test = pd.concat([roberta_test, gltr_test, keywords_test, embedding_test, ngrams_test, rouge_test], axis = 1)
+predictions = xgbc.predict(X_test)
+with open("output/output/submission.csv", "w") as pred:
     csv_out = csv.writer(pred)
     csv_out.writerow(['id','label'])
     for i, row in enumerate(predictions):

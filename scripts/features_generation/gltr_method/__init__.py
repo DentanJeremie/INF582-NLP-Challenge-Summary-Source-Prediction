@@ -1,5 +1,7 @@
 from .class_register import AVAILABLE_MODELS
 
+from .gltr import LM, BERTLM
+
 '''
 Import all classes in this directory so that classes with
 @register_api are registered.
