@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import pandas as pd
 import numpy as np
+from gltr import LM, BERTLM
 
 class GLTR_classifier(nn.Module):
     def __init__(self):
