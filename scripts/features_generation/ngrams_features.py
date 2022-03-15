@@ -4,6 +4,11 @@ from tqdm import tqdm
 import nltk
 from nltk.util import ngrams
 from nltk.tokenize import RegexpTokenizer
+import math
+import operator
+from functools import reduce
+from rouge import Rouge
+
 nltk.download('punkt')
 
 # Data
@@ -11,12 +16,15 @@ training_set = pd.read_json('processed_data/train_set.json')
 test_set = pd.read_json('processed_data/test_set.json')
 
 # Output
-column_names = ["wordsDoc_in_wordsSum", "bigramsDoc_in_bigramsSum", "trigramsDoc_in_trigramsSum", "fourgramsDoc_in_fourgramsSum"]
+column_names = ["wordsDoc_in_wordsSum", "bigramsDoc_in_bigramsSum", "trigramsDoc_in_trigramsSum", "fourgramsDoc_in_fourgramsSum", "bleu_score"]
 columns_train = np.zeros((len(training_set),len(column_names)))
 columns_test = np.zeros((len(test_set),len(column_names)))
 
 # Word tokenizer - alphanumeric only
 tokenizer = RegexpTokenizer(r'\w+')
+
+def geometric_mean(precisions):
+    return (reduce(operator.mul, precisions)) ** (1.0 / len(precisions))
 
 for step, (to_process, columns) in enumerate([(training_set,columns_train), (test_set,columns_test)]):
     for i in tqdm(range(len(to_process.index))):
@@ -48,8 +56,10 @@ for step, (to_process, columns) in enumerate([(training_set,columns_train), (tes
         fourgramsDoc = set(ngrams(tokenized_doc, 4))
         fourgramsSum = set(ngrams(tokenized_sum, 4))
         fourgramsDoc_in_fourgramsSum = len(fourgramsDoc.intersection(fourgramsSum)) / len(fourgramsDoc)
+        
+        bleu_score = geometric_mean(precisions=[wordsDoc_in_wordsSum, bigramsDoc_in_bigramsSum, trigramsDoc_in_trigramsSum, fourgramsDoc_in_fourgramsSum])
 
-        columns[i] = np.array([wordsDoc_in_wordsSum, bigramsDoc_in_bigramsSum, trigramsDoc_in_trigramsSum, fourgramsDoc_in_fourgramsSum])
+        columns[i] = np.array([wordsDoc_in_wordsSum, bigramsDoc_in_bigramsSum, trigramsDoc_in_trigramsSum, fourgramsDoc_in_fourgramsSum, bleu_score])
     
     if step==0:
         pd.DataFrame(columns,columns=column_names).to_csv("processed_data/ngrams_train.csv",index=False)
