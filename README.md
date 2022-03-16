@@ -8,6 +8,7 @@ source ./.venv/bin/activate
 ```
 Then, install the required libraries with
 ```bash
+pip install --upgrade pip
 pip3 install -r requirements.txt
 ```
 
