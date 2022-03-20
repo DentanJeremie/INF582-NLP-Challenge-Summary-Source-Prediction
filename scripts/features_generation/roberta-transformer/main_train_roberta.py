@@ -69,13 +69,13 @@ args = TrainingArguments(
     overwrite_output_dir = True,
     evaluation_strategy="steps",
     eval_steps=250,
-    per_device_train_batch_size=8,
-    per_device_eval_batch_size=8,
+    per_device_train_batch_size=2,
+    per_device_eval_batch_size=2,
     num_train_epochs=5,
     seed=0,
     load_best_model_at_end=True,
     save_steps= 500, 
-    gradient_accumulation_steps=1
+    gradient_accumulation_steps=4
 )
 
 

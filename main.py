@@ -66,13 +66,13 @@ def plot_feature_importance(importance,names,model_type):
     plt.ylabel('FEATURE NAMES')
     plt.yticks(fontsize = 8)
 
-print(xgbc.feature_importances_)
 # plot
 ax = sns.barplot()
 #plt.bar(range(len(xgbc.feature_importances_)), xgbc.feature_importances_)
 
 plot_feature_importance(xgbc.feature_importances_,X.columns,'XG BOOST ')
 plt.savefig('barplot.png')
+print('xgboost feature impotance saved to barplot.png')
 
 '''y_pred_val = xgbc.predict(X_val)
 y_pred_val = y_pred_val.round(0).astype(int)
@@ -89,3 +89,4 @@ with open("output/output/submission.csv", "w") as pred:
     csv_out.writerow(['id','label'])
     for i, row in enumerate(predictions):
         csv_out.writerow([i, row])
+    print("'Submission saved to output/output/submission.csv !")
