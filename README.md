@@ -12,4 +12,21 @@ pip install --upgrade pip
 pip3 install -r requirements.txt
 ```
 
-**Note:** the project uses `yapf` in order to format python code. Automatic formatting and lynting is already configured for `VSCode` (including "format on save").
+## Dowload data and compute features
+To reproduce the results of the paper, please run :
+```
+bash sh/data_download.sh
+bash preprocessing.sh
+```
+
+The preprocessing time is about 1h. However, we provide the computed `.csv` files in `processed_data` directory.
+
+## Prediction
+Simply run:
+```
+python main.py
+```
+or, for the same algorithm with fine-tuned parameters (same performance yet) :
+```
+python main_xgbtuned.py
+```
