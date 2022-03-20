@@ -1,4 +1,6 @@
 # INF582-NLP_challenge
+Readme associated to the git repository : https://github.com/paultheron-X/INF582-NLP_challenge.git
+Authors : Jérémie Dentan, Louis Gautier, Paul Théron
 
 ## Getting started
 In order to set up the project, please use a virtual environment that can be created and activated with
