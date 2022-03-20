@@ -7,6 +7,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 import xgboost
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 # Read The data
@@ -42,12 +43,35 @@ xgbc = XGBClassifier(objective='binary:logistic', colsample_bytree= 0.7, learnin
 clf = xgbc.fit(X, Y)
 
 
-plot_importance(xgbc)
-plt.savefig('featur_imp.png')
+def plot_feature_importance(importance,names,model_type):
+
+    #Create arrays from feature importance and feature names
+    feature_importance = np.array(importance)
+    feature_names = np.array(names)
+
+    #Create a DataFrame using a Dictionary
+    data={'feature_names':feature_names,'feature_importance':feature_importance}
+    fi_df = pd.DataFrame(data)
+
+    #Sort the DataFrame in order decreasing feature importance
+    fi_df.sort_values(by=['feature_importance'], ascending=False,inplace=True)
+
+    #Define size of bar plot
+    plt.figure(figsize=(10,8))
+    #Plot Searborn bar chart
+    sns.barplot(x=fi_df['feature_importance'], y=fi_df['feature_names'])
+    #Add chart labels
+    plt.title(model_type + 'FEATURE IMPORTANCE')
+    plt.xlabel('FEATURE IMPORTANCE')
+    plt.ylabel('FEATURE NAMES')
+    plt.yticks(fontsize = 8)
 
 print(xgbc.feature_importances_)
 # plot
-plt.bar(range(len(xgbc.feature_importances_)), xgbc.feature_importances_)
+ax = sns.barplot()
+#plt.bar(range(len(xgbc.feature_importances_)), xgbc.feature_importances_)
+
+plot_feature_importance(xgbc.feature_importances_,X.columns,'XG BOOST ')
 plt.savefig('barplot.png')
 
 '''y_pred_val = xgbc.predict(X_val)
