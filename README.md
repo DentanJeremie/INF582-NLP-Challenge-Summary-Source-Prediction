@@ -14,6 +14,11 @@ pip install --upgrade pip
 pip3 install -r requirements.txt
 ```
 
+## Documentation
+An academic description of our work is available :
+- Report : [here](/documentation/INF582_Report.pdf)
+- Presentation : [here](/documentation/INF582_slides.pdf)
+
 ## Dowload data and compute features
 To reproduce the results of the paper, please run :
 ```
