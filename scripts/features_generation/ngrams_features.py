@@ -16,7 +16,7 @@ training_set = pd.read_json('processed_data/train_set.json')
 test_set = pd.read_json('processed_data/test_set.json')
 
 # Output
-column_names = ["wordsDoc_in_wordsSum", "bigramsDoc_in_bigramsSum", "trigramsDoc_in_trigramsSum", "fourgramsDoc_in_fourgramsSum", "bleu_score"]
+column_names = ["wordsSum", "bigramsSum", "trigramsSum", "fourgramsSum", "bleu_score"]
 columns_train = np.zeros((len(training_set),len(column_names)))
 columns_test = np.zeros((len(test_set),len(column_names)))
 
@@ -40,26 +40,26 @@ for step, (to_process, columns) in enumerate([(training_set,columns_train), (tes
         # Words
         wordsDoc = set(tokenized_doc)
         wordsSum = set(tokenized_sum)
-        wordsDoc_in_wordsSum = len(wordsDoc.intersection(wordsSum)) / len(wordsDoc)
+        wordsSum = len(wordsDoc.intersection(wordsSum)) / len(wordsDoc)
 
         # Bigrams
         bigramsDoc = set(ngrams(tokenized_doc, 2))
         bigramsSum = set(ngrams(tokenized_sum, 2))
-        bigramsDoc_in_bigramsSum = len(bigramsDoc.intersection(bigramsSum)) / len(bigramsDoc)
+        bigramsSum = len(bigramsDoc.intersection(bigramsSum)) / len(bigramsDoc)
 
         # Trigrams
         trigramsDoc = set(ngrams(tokenized_doc, 3))
         trigramsSum = set(ngrams(tokenized_sum, 3))
-        trigramsDoc_in_trigramsSum = len(trigramsDoc.intersection(trigramsSum)) / len(trigramsDoc)
+        trigramsSum = len(trigramsDoc.intersection(trigramsSum)) / len(trigramsDoc)
 
         # 4grams
         fourgramsDoc = set(ngrams(tokenized_doc, 4))
         fourgramsSum = set(ngrams(tokenized_sum, 4))
-        fourgramsDoc_in_fourgramsSum = len(fourgramsDoc.intersection(fourgramsSum)) / len(fourgramsDoc)
+        fourgramsSum = len(fourgramsDoc.intersection(fourgramsSum)) / len(fourgramsDoc)
         
-        bleu_score = geometric_mean(precisions=[wordsDoc_in_wordsSum, bigramsDoc_in_bigramsSum, trigramsDoc_in_trigramsSum, fourgramsDoc_in_fourgramsSum])
+        bleu_score = geometric_mean(precisions=[wordsSum, bigramsSum, trigramsSum, fourgramsSum])
 
-        columns[i] = np.array([wordsDoc_in_wordsSum, bigramsDoc_in_bigramsSum, trigramsDoc_in_trigramsSum, fourgramsDoc_in_fourgramsSum, bleu_score])
+        columns[i] = np.array([wordsSum, bigramsSum, trigramsSum, fourgramsSum, bleu_score])
     
     if step==0:
         pd.DataFrame(columns,columns=column_names).to_csv("processed_data/ngrams_train.csv",index=False)
