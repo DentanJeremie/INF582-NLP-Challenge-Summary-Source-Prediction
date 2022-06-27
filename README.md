@@ -1,5 +1,6 @@
 # INF582-NLP_challenge
-Readme associated to the git repository : https://github.com/paultheron-X/INF582-NLP_challenge.git
+Paper associated to this git repository : https://www.researchgate.net/publication/361569713_INF582_NLP_Challenge_Summary_Source_Prediction <br>
+Readme associated to the git repository : https://github.com/paultheron-X/INF582-NLP_challenge.git <br>
 Authors : Jérémie Dentan, Louis Gautier, Paul Théron
 
 ## Getting started
